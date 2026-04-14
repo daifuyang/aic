@@ -40,3 +40,6 @@ coverage/
 
 # Screenshots
 shop-*.png
+
+# Browser session files
+github-session
