@@ -1,0 +1,18 @@
+# AIC Configuration Example
+# Save as ~/.config/aic/config.toml
+
+[qiniu]
+accessKey = "your_qiniu_access_key"
+secretKey = "your_qiniu_secret_key"
+bucket = "your_bucket_name"
+domain = "cdn.example.com"
+region = "z0"  # 华东-浙江
+
+[aliyun]
+accessKeyId = "your_aliyun_access_key_id"
+accessKeySecret = "your_aliyun_access_key_secret"
+
+[acme]
+path = "~/.acme.sh/acme.sh"
+dnsProvider = "aliyun"  # aliyun, cloudflare, dnspod
+email = "your@email.com"

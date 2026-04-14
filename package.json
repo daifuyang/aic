@@ -1,0 +1,24 @@
+{
+  "name": "aic",
+  "version": "0.1.0",
+  "description": "Cloud resources management CLI - Qiniu, CDN, DNS, SSL",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "aic": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "commander": "^12.1.0",
+    "qiniu": "^7.15.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0"
+  }
+}
