@@ -17,8 +17,8 @@
 ## 安装
 
 ```bash
-# 从 npm 安装（待发布）
-npm install -g @daifuyang/aic
+# 从 npm 安装
+npm install -g @zerocmf/aic
 
 # 或从源码安装
 git clone https://github.com/daifuyang/aic.git

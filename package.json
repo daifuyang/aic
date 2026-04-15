@@ -1,5 +1,5 @@
 {
-  "name": "@daifuyang/aic",
+  "name": "@zerocmf/aic",
   "version": "0.1.0",
   "description": "Cloud resources management CLI - Qiniu, CDN, DNS, SSL",
   "keywords": ["cli", "qiniu", "cdn", "dns", "ssl", "acme", "cloud"],
