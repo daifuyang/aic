@@ -1,7 +1,7 @@
 # AIC - Cloud Resources CLI
 
 [![CI](https://github.com/daifuyang/aic/actions/workflows/ci.yml/badge.svg)](https://github.com/daifuyang/aic/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/@daifuyang/aic.svg)](https://www.npmjs.com/package/@daifuyang/aic)
+[![npm version](https://img.shields.io/npm/v/@zerocmf/aic.svg)](https://www.npmjs.com/package/@zerocmf/aic)
 [![Node.js >=18](https://img.shields.io/badge/node-%3E%3D18-green.svg)](https://nodejs.org/)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
