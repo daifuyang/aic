@@ -32,12 +32,6 @@ coverage/
 .playwright/
 .playwright-cli/
 
-# OpenCode package files (not needed in repo)
-.opencode/node_modules
-.opencode/package.json
-.opencode/package-lock.json
-.opencode/.gitignore
-
 # Screenshots
 shop-*.png
 
