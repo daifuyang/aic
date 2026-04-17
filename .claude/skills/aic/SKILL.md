@@ -10,11 +10,14 @@ AIC is a command-line tool for managing cloud resources including Qiniu storage,
 ## Installation
 
 ```bash
-git clone https://github.com/your-repo/aic.git
+npm install -g @zerocmf/aic
+
+# or from source
+git clone https://github.com/daifuyang/aic.git
 cd aic
 npm install
 npm run build
-npm install -g  # or npm link for development
+npm link
 ```
 
 ## Configuration

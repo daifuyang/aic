@@ -1,6 +1,6 @@
 ---
 name: aic
-description: Cloud resources management CLI for Qiniu storage, CDN, DNS, and SSL certificates
+description: AIC is a cloud resources CLI for Qiniu storage, CDN, DNS, and SSL certificates. Use when managing cloud resources, uploading files to Qiniu, configuring CDN domains, issuing SSL certificates via ACME DNS, or setting up DNS records. Examples: "upload file to cloud", "create CDN domain", "issue SSL certificate", "add DNS record", "deploy static site with HTTPS".
 ---
 
 ## Overview
@@ -10,11 +10,11 @@ AIC is a command-line tool for managing cloud resources including Qiniu storage,
 ## Installation
 
 ```bash
-git clone https://github.com/your-repo/aic.git
-cd aic
-npm install
-npm run build
-npm install -g  # or npm link for development
+npm install -g @zerocmf/aic
+
+# Or from source
+git clone https://github.com/daifuyang/aic.git
+cd aic && npm install && npm run build && npm link
 ```
 
 ## Configuration
@@ -52,7 +52,7 @@ aic upload <file> [options]
 
 ```bash
 aic upload ./photo.jpg
-aic upload ./screenshot.png --key "images/2024/screenshot.png"
+aic upload ./screenshot.png --key "images/screenshot.png"
 aic upload ./photo.jpg --prefix images
 ```
 
@@ -66,7 +66,7 @@ aic list [options]
 ```bash
 aic list
 aic list --prefix images/
-aic list --prefix images/ --limit 50
+aic list --limit 50
 ```
 
 #### Generate private URL
@@ -83,10 +83,6 @@ aic url images/photo.jpg --expires 86400
 #### Delete file
 ```bash
 aic delete <key>
-```
-
-```bash
-aic delete photo.jpg
 ```
 
 #### File info
@@ -110,7 +106,7 @@ aic move <src> <dest>
 ```bash
 aic cdn:create <domain> [options]
 ```
-- `-b, --bucket <bucket>` - Qiniu bucket name
+- `-b, --bucket <bucket>` - Qiniu bucket name (or set QINIU_BUCKET env var)
 - `--geo <geo>` - Geographic coverage: china/foreign/global (default: china)
 - `--protocol <protocol>` - Protocol: http/https (default: http)
 
@@ -157,7 +153,7 @@ aic cert:issue cdn.example.com -e
 aic cert:issue cdn.example.com -d cloudflare
 ```
 
-#### Upload certificate
+#### Upload certificate to Qiniu
 ```bash
 aic cert:upload <name> <commonName> <certFile> <keyFile>
 ```
@@ -219,44 +215,53 @@ aic dns:info <recordId>
 # 1. Create CDN domain
 aic cdn:create cdn.example.com --bucket my-bucket
 
-# 2. Add DNS CNAME record (get CNAME from cdn:info)
+# 2. Get CNAME from domain info
+aic cdn:info cdn.example.com
+# Look for "cname" field in response
+
+# 3. Add DNS CNAME record (replace with actual CNAME)
 aic dns:add example.com cdn CNAME cdn-xxx.qiniudns.com
 
-# 3. Issue SSL certificate
+# 4. Issue SSL certificate
 aic cert:issue cdn.example.com
 
-# 4. Upload certificate to Qiniu
+# 5. Upload certificate to Qiniu (paths from cert:issue output)
 aic cert:upload my-cert cdn.example.com \
   ~/.acme.sh/cdn.example.com/fullchain.cer \
   ~/.acme.sh/cdn.example.com/cdn.example.com.key
 
-# 5. Bind certificate to CDN
+# 6. Bind certificate to CDN (certId from cert:upload output)
 aic cert:bind cdn.example.com <certId>
-
-# Wait 5-10 minutes for HTTPS to take effect
 ```
 
-### Upload and share file
+### Upload and share file (with preview)
 
 ```bash
 # 1. Upload file
-aic upload ./image.png --prefix images
+aic upload ./image.png
 
 # 2. Generate signed URL (valid for 24 hours)
-aic url images/image.png --expires 86400
+aic url image.png --expires 86400
 ```
 
 ## DNS Providers
 
 Supported providers for ACME DNS verification:
-- `aliyun` - Aliyun DNS (default, uses credentials from config)
+- `aliyun` - Aliyun DNS (default, uses credentials from config.toml)
 - `cloudflare` - Cloudflare (requires CLOUDFLARE_API_KEY env var)
-- `dnspod` - DNSPod (requires DNSPOD_API_KEY env var)
+- `dnspod` - DNSPod (requires DNSPOD_API_KEY env var in format "key,secret")
+
+## Environment Variables
+
+- `QINIU_BUCKET` - Default bucket name (if not in config)
+- `CLOUDFLARE_API_KEY` - Cloudflare API token
+- `DNSPOD_API_KEY` - DNSPod API key in "key,secret" format
 
 ## Notes
 
-- All commands output JSON to stdout
-- Status messages and progress go to stderr
-- Private bucket URLs are automatically signed
+- All commands output JSON to stdout for parsing
+- Progress messages go to stderr
+- URLs are automatically signed for private buckets
 - File keys are case-sensitive
-- DNS changes take effect immediately, CDN changes take 5-10 minutes
+- DNS changes take effect immediately
+- CDN/HTTPS changes take 5-10 minutes to propagate

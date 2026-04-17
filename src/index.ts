@@ -392,53 +392,5 @@ program.command("dns:info").description("Get DNS record info").argument("<record
   }
 });
 
-// ============ Setup Command ============
-
-program.command("setup:cname").description("Setup CDN domain with DNS (interactive)").argument("<cdnDomain>", "CDN domain (e.g., cdn.example.com)").option("-b, --bucket <bucket>", "Qiniu bucket name").action(async (cdnDomain: string, opts: { bucket?: string }) => {
-  try {
-    const bucket = opts.bucket || process.env.QINIU_BUCKET;
-    if (!bucket) {
-      throw new Error("Bucket not specified and QINIU_BUCKET not set");
-    }
-
-    console.error("Step 1: Creating CDN domain in Qiniu...");
-    const cdn = new QiniuCdnClient();
-    const createResult = await cdn.createDomain(cdnDomain, bucket, { geoCover: "foreign", protocol: "http" });
-    console.error("CDN creation result:", JSON.stringify(createResult));
-
-    if (createResult.code && createResult.code !== 200) {
-      throw new Error(`Failed to create CDN domain: ${createResult.error}`);
-    }
-
-    console.error("\nStep 2: Waiting for domain to be ready...");
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    console.error("\nStep 3: Getting CDN domain info to retrieve CNAME...");
-    const domainInfo = await cdn.getDomain(cdnDomain);
-    console.error("CDN domain info:", JSON.stringify(domainInfo, null, 2));
-
-    const cname = domainInfo.cname;
-    if (!cname) {
-      throw new Error("CNAME not found in domain info. Domain may still be processing.");
-    }
-
-    console.error(`\nStep 4: Adding DNS CNAME record...`);
-    const mainDomain = cdnDomain.replace(/^[^.]+\./, "");
-    const rr = cdnDomain.split(".")[0];
-
-    const dns = new AliyunDnsClient();
-    const dnsResult = await dns.addRecord(mainDomain, rr, "CNAME", cname);
-    console.log(JSON.stringify({
-      success: true,
-      cdnDomain,
-      cname,
-      dnsRecord: dnsResult,
-      message: `CDN domain ${cdnDomain} created and CNAME ${rr}.${mainDomain} -> ${cname} added`,
-    }, null, 2));
-  } catch (err) {
-    console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
-    process.exit(1);
-  }
-});
 
 program.parse();

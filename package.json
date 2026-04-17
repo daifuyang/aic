@@ -2,7 +2,15 @@
   "name": "@zerocmf/aic",
   "version": "0.1.0",
   "description": "Cloud resources management CLI - Qiniu, CDN, DNS, SSL",
-  "keywords": ["cli", "qiniu", "cdn", "dns", "ssl", "acme", "cloud"],
+  "keywords": [
+    "cli",
+    "qiniu",
+    "cdn",
+    "dns",
+    "ssl",
+    "acme",
+    "cloud"
+  ],
   "engines": {
     "node": ">=18"
   },
@@ -27,7 +35,8 @@
     "qiniu": "^7.15.1"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.8.0"
+    "@types/node": "^22.19.17",
+    "marked": "^18.0.1",
+    "typescript": "^6.0.3"
   }
 }
