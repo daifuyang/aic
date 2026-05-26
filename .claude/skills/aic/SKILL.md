@@ -1,11 +1,11 @@
 ---
 name: aic
-description: Cloud resources management CLI for Qiniu storage, CDN, DNS, and SSL certificates
+description: Cloud resources management CLI for Qiniu storage, CDN, DNS, SSL certificates, and WeChat notifications
 ---
 
 ## Overview
 
-AIC is a command-line tool for managing cloud resources including Qiniu storage, CDN domains, Aliyun DNS, and SSL certificates via ACME DNS verification.
+AIC is a command-line tool for managing cloud resources including Qiniu storage, CDN domains, Aliyun DNS, SSL certificates via ACME DNS verification, and WeChat template message notifications.
 
 ## Installation
 
@@ -40,6 +40,11 @@ accessKeySecret = "your_access_key_secret"
 path = "~/.acme.sh/acme.sh"
 dnsProvider = "aliyun"
 email = "your@email.com"
+
+[wechat]
+appId = "your_wechat_appid"
+appSecret = "your_wechat_appsecret"
+templateId = "your_template_id"
 ```
 
 ## Commands
@@ -212,6 +217,50 @@ aic dns:delete <recordId>
 #### DNS record info
 ```bash
 aic dns:info <recordId>
+```
+
+### Notification Commands
+
+#### Send WeChat notification (simplified)
+```bash
+aic notify:send <openid> <title> <content> [options]
+```
+- `-u, --url <url>` - Link URL
+- `-r, --remark <remark>` - Remark text
+- `-t, --type <type>` - Notification type (default: 系统通知)
+
+```bash
+aic notify:send oXXXXXX "证书到期提醒" "您的SSL证书将在7天后到期" -t "证书提醒"
+aic notify:send oXXXXXX "操作成功" "文件已上传完成" --url https://example.com
+```
+
+#### Send WeChat template message (raw)
+```bash
+aic notify:wechat <openid> <data> [options]
+```
+- `-u, --url <url>` - Link URL
+- `-t, --template <templateId>` - Template ID (overrides config)
+
+```bash
+aic notify:wechat oXXXXXX '{"first":{"value":"标题"},"thing01":{"value":"内容"}}'
+```
+
+#### Send email
+```bash
+aic notify:email <to> <subject> <content>
+```
+
+```bash
+aic notify:email user@example.com "邮件主题" "邮件内容"
+```
+
+#### Send SMS
+```bash
+aic notify:sms <phone> <params>
+```
+
+```bash
+aic notify:sms 13800138000 '{"code":"1234"}'
 ```
 
 ## Common Workflows

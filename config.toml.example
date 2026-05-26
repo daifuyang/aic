@@ -8,11 +8,49 @@ bucket = "your_bucket_name"
 domain = "cdn.example.com"
 region = "z0"  # 华东-浙江
 
+# Aliyun - Multiple profiles support
+# The [aliyun] section is the default profile (can be omitted if only one profile)
 [aliyun]
-accessKeyId = "your_aliyun_access_key_id"
+accessKeyId = "LTAI5tQCSmUopAWN5cd4ZzKz"  # default profile
 accessKeySecret = "your_aliyun_access_key_secret"
+default-profile = "personal"  # optional, specifies default profile name
+
+# Named profiles (use --profile to specify)
+[aliyun.personal]
+accessKeyId = "LTAI5tQCSmUopAWN5cd4ZzKz"
+accessKeySecret = "your_personal_access_key_secret"
+
+[aliyun.enterprise]
+accessKeyId = "LTAI5tGaLGzAjDMKHKCajB8q"
+accessKeySecret = "your_enterprise_access_key_secret"
 
 [acme]
 path = "~/.acme.sh/acme.sh"
 dnsProvider = "aliyun"  # aliyun, cloudflare, dnspod
 email = "your@email.com"
+
+[email]
+host = "smtp.example.com"
+port = 465
+user = "your_email"
+pass = "your_password"
+from = "your@email.com"
+ssl = true
+
+[sms]
+provider = "aliyun"  # aliyun | tencent
+accessKeyId = "your_access_key_id"
+accessKeySecret = "your_access_key_secret"
+signName = "YourSignName"
+templateCode = "SMS_xxxxx"
+
+# Usage:
+#   aic dns:list example.com                    # uses default profile
+#   aic dns:list example.com -p personal        # uses personal profile
+#   aic aliyun-cert:list -p enterprise         # uses enterprise profile
+#
+# Environment variable override:
+#   AIC_ALIYUN_PROFILE=personal aic dns:list example.com
+#
+# Custom config file:
+#   AIC_CONFIG=/path/to/config.toml aic dns:list example.com

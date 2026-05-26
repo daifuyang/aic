@@ -1,6 +1,6 @@
 {
   "name": "@zerocmf/aic",
-  "version": "0.1.0",
+  "version": "0.1.2-dev",
   "description": "Cloud resources management CLI - Qiniu, CDN, DNS, SSL",
   "keywords": [
     "cli",
@@ -32,10 +32,14 @@
   "dependencies": {
     "@iarna/toml": "^2.2.5",
     "commander": "^12.1.0",
+    "js-yaml": "^4.1.1",
+    "nodemailer": "^6.9.16",
     "qiniu": "^7.15.1"
   },
   "devDependencies": {
-    "@types/node": "^22.19.17",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.19.19",
+    "@types/nodemailer": "^8.0.0",
     "marked": "^18.0.1",
     "typescript": "^6.0.3"
   }

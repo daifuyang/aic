@@ -298,6 +298,10 @@ export class QiniuCdnClient {
   async getCert(certId: string): Promise<any> {
     return this.request("GET", `https://fusion.qiniuapi.com/sslcert/${certId}`);
   }
+
+  async deleteCert(certId: string): Promise<any> {
+    return this.request("DELETE", `https://fusion.qiniuapi.com/sslcert/${certId}`);
+  }
 }
 
 export function createClient(config?: Partial<QiniuConfig>): QiniuClient {

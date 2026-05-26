@@ -1,22 +1,10 @@
 import crypto from "crypto";
 import https from "https";
-import { loadConfig as loadGlobalConfig } from "./config";
+import { getAliyunProfile } from "./config";
 
 export interface AliyunDnsConfig {
   accessKeyId: string;
   accessKeySecret: string;
-}
-
-function loadConfig(): AliyunDnsConfig {
-  const globalConfig = loadGlobalConfig();
-  if (globalConfig?.aliyun) {
-    const { accessKeyId, accessKeySecret } = globalConfig.aliyun;
-    if (!accessKeyId || !accessKeySecret) {
-      throw new Error("Missing required aliyun config fields");
-    }
-    return { accessKeyId, accessKeySecret };
-  }
-  throw new Error("No aliyun config found. Please configure ~/.config/aic/config.toml");
 }
 
 function percentEncode(str: string): string {
@@ -33,10 +21,10 @@ export class AliyunDnsClient {
   private accessKeyId: string;
   private accessKeySecret: string;
 
-  constructor(config?: Partial<AliyunDnsConfig>) {
-    const cfg = config || loadConfig();
-    this.accessKeyId = cfg.accessKeyId!;
-    this.accessKeySecret = cfg.accessKeySecret!;
+  constructor(profile?: string) {
+    const cfg = getAliyunProfile(profile);
+    this.accessKeyId = cfg.accessKeyId;
+    this.accessKeySecret = cfg.accessKeySecret;
   }
 
   private sign(params: Record<string, string>): string {
@@ -141,6 +129,6 @@ export class AliyunDnsClient {
   }
 }
 
-export function createDnsClient(config?: Partial<AliyunDnsConfig>): AliyunDnsClient {
-  return new AliyunDnsClient(config);
+export function createDnsClient(profile?: string): AliyunDnsClient {
+  return new AliyunDnsClient(profile);
 }
