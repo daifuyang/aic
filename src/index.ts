@@ -369,14 +369,41 @@ program.command("cert:renew").description("Auto-renew expiring CDN certificates"
     const now = Math.floor(Date.now() / 1000);
     const renewThreshold = now + renewDays * 24 * 60 * 60;
 
-    const needRenew: Array<{ domain: string; cert: any; expiresAt: number }> = [];
+    const getDomainName = (domain: any): string => String(domain?.name || domain?.domain || "");
+    const getDomainCertId = (domain: any): string => {
+      const direct = domain?.certid ?? domain?.certId ?? domain?.ssl?.certId ?? domain?.https?.certId ?? domain?.https?.certid;
+      return direct == null ? "" : String(direct);
+    };
+    const getCertId = (cert: any): string => {
+      const id = cert?.certid ?? cert?.certId ?? cert?.id;
+      return id == null ? "" : String(id);
+    };
 
+    const certById = new Map<string, any>();
     for (const cert of certList) {
-      if (cert.enable === false && typeof cert.not_after === "number" && cert.not_after < renewThreshold) {
-        const boundDomain = domainList.find((d: any) => d.name === cert.common_name);
-        if (boundDomain) {
-          needRenew.push({ domain: cert.common_name, cert, expiresAt: cert.not_after });
-        }
+      const certId = getCertId(cert);
+      if (certId) certById.set(certId, cert);
+    }
+
+    const needRenew: Array<{ domain: string; cert: any; boundCertId: string; expiresAt: number }> = [];
+
+    for (const domain of domainList) {
+      const domainName = getDomainName(domain);
+      if (!domainName) continue;
+
+      const boundCertId = getDomainCertId(domain);
+      let boundCert = boundCertId ? certById.get(boundCertId) : undefined;
+
+      if (!boundCert) {
+        const matched = certList
+          .filter((c: any) => c?.common_name === domainName)
+          .sort((a: any, b: any) => Number(b?.not_after || 0) - Number(a?.not_after || 0));
+        boundCert = matched[0];
+      }
+
+      const expiresAt = Number(boundCert?.not_after || 0);
+      if (boundCert && expiresAt > 0 && expiresAt < renewThreshold) {
+        needRenew.push({ domain: domainName, cert: boundCert, boundCertId, expiresAt });
       }
     }
 
@@ -392,7 +419,7 @@ program.command("cert:renew").description("Auto-renew expiring CDN certificates"
     }
 
     if (opts.dryRun) {
-      console.log(JSON.stringify({ success: true, dryRun: true, renewDays, needRenew: needRenew.map(r => ({ domain: r.domain, expiresAt: r.expiresAt })) }, null, 2));
+      console.log(JSON.stringify({ success: true, dryRun: true, renewDays, needRenew: needRenew.map(r => ({ domain: r.domain, boundCertId: r.boundCertId || null, expiresAt: r.expiresAt })) }, null, 2));
       return;
     }
 
@@ -401,7 +428,7 @@ program.command("cert:renew").description("Auto-renew expiring CDN certificates"
     const email = globalConfig?.acme?.email || "";
     const dnsProvider = globalConfig?.acme?.dnsProvider || "aliyun";
 
-    const results: Array<{ domain: string; success: boolean; certId?: string; error?: string }> = [];
+    const results: Array<{ domain: string; success: boolean; certId?: string; deletedOldCertIds?: string[]; error?: string }> = [];
 
     for (const item of needRenew) {
       const domain = item.domain;
@@ -431,8 +458,22 @@ program.command("cert:renew").description("Auto-renew expiring CDN certificates"
         const uploadResult = await cdn.uploadCert(`${domain}-auto`, domain, fs.readFileSync(keyPath, "utf8"), fs.readFileSync(certPath, "utf8"));
         await cdn.bindCert(domain, uploadResult.certID);
 
+        const deletedOldCertIds: string[] = [];
+        const newCertId = String(uploadResult.certID);
+        const oldCerts = certList.filter((c: any) => c?.common_name === domain && getCertId(c) && getCertId(c) !== newCertId);
+        for (const oldCert of oldCerts) {
+          const oldCertId = getCertId(oldCert);
+          try {
+            await cdn.deleteCert(oldCertId);
+            deletedOldCertIds.push(oldCertId);
+          } catch (deleteErr) {
+            const deleteMsg = deleteErr instanceof Error ? deleteErr.message : String(deleteErr);
+            console.error(`Warning: failed to delete old cert ${oldCertId}: ${deleteMsg}`);
+          }
+        }
+
         console.error(`Success: certID=${uploadResult.certID}`);
-        results.push({ domain, success: true, certId: uploadResult.certID });
+        results.push({ domain, success: true, certId: uploadResult.certID, deletedOldCertIds });
       } catch (err) {
         const errMsg = err instanceof Error ? err.message : String(err);
         console.error(`Failed: ${errMsg}`);

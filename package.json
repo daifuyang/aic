@@ -1,6 +1,6 @@
 {
   "name": "@zerocmf/aic",
-  "version": "0.1.2-dev",
+  "version": "0.1.2-dev.2",
   "description": "Cloud resources management CLI - Qiniu, CDN, DNS, SSL",
   "keywords": [
     "cli",
